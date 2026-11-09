@@ -3,6 +3,8 @@ import { VISUAL_VULNERABILITIES } from '@/data/visualLabData';
 import { VisualLabTopNav } from './VisualLabTopNav';
 import { VisualLabSidebar } from './VisualLabSidebar';
 import { VisualLabDiagram } from './VisualLabDiagram';
+import { VisualLabControls } from './VisualLabControls';
+import { VisualLabRightPane } from './VisualLabRightPane';
 import { DedicatedQuizSection } from './DedicatedQuizSection';
 import { AboutOwaspView } from './AboutOwaspView';
 import { SecurityBasicsView } from './SecurityBasicsView';
@@ -126,10 +128,42 @@ export function VisualLabApp() {
                 speed={speed}
               />
 
+              {/* Bottom Playback & Speed Controls */}
+              <VisualLabControls
+                vulnerability={currentVuln}
+                isPlaying={isPlaying}
+                onTogglePlay={() => setIsPlaying((p) => !p)}
+                speed={speed}
+                onSelectSpeed={setSpeed}
+                isCompleted={completedIds.includes(currentVuln.id)}
+                onToggleComplete={() =>
+                  setCompletedIds((prev) =>
+                    prev.includes(currentVuln.id)
+                      ? prev.filter((id) => id !== currentVuln.id)
+                      : [...prev, currentVuln.id],
+                  )
+                }
+                onNext={() => {
+                  const idx = VISUAL_VULNERABILITIES.findIndex((v) => v.id === currentVuln.id);
+                  if (idx >= 0 && idx < VISUAL_VULNERABILITIES.length - 1) {
+                    handleSelectVulnerability(VISUAL_VULNERABILITIES[idx + 1].id);
+                  }
+                }}
+                onPresent={() => setIsFullscreen((f) => !f)}
+              />
             </div>
           )}
         </main>
 
+        {/* Right Inspector Pane */}
+        {selectedId !== 'about' && selectedId !== 'basics' && selectedId !== 'quizzes' && (
+          <VisualLabRightPane
+            selectedNode={selectedNode}
+            isFullscreen={isFullscreen}
+            onToggleFullscreen={() => setIsFullscreen((f) => !f)}
+            onOpenQuiz={() => setSelectedId('quizzes')}
+          />
+        )}
       </div>
     </div>
   );
