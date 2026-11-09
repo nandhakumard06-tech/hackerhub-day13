@@ -44,7 +44,7 @@ export function VisualLabControls({
         <button
           type="button"
           onClick={onTogglePlay}
-          className={`flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold shadow-md transition-all ${
+          className={`flex items-center gap-1.5 sm:gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold shadow-md transition-all ${
             isPlaying
               ? 'border border-cyan-500/50 bg-cyan-950/60 text-cyan-200 shadow-cyan-950/40 hover:bg-cyan-900/60 hover:text-white'
               : 'border border-slate-700 bg-[#0d1527] text-slate-300 hover:border-cyan-500/40 hover:bg-[#121c33] hover:text-white'
@@ -54,12 +54,12 @@ export function VisualLabControls({
           {isPlaying ? (
             <>
               <Pause className="size-3.5 fill-cyan-400 text-cyan-400" />
-              <span>Pause Flow</span>
+              <span>Pause</span>
             </>
           ) : (
             <>
               <Play className="size-3.5 fill-cyan-400 text-cyan-400" />
-              <span>Start Flow</span>
+              <span>Play</span>
             </>
           )}
         </button>

@@ -1,9 +1,11 @@
 import {
   GraduationCap,
   Search,
+  X,
 } from 'lucide-react';
 import { useState } from 'react';
 import type { VisualVulnerability } from '@/data/visualLabData';
+import { cn } from '@/utils/cn';
 
 interface Props {
   vulnerabilities: VisualVulnerability[];
@@ -11,6 +13,8 @@ interface Props {
   onSelect: (id: string) => void;
   onSelectQuiz?: () => void;
   completedIds: string[];
+  onClose?: () => void;
+  className?: string;
 }
 
 export function VisualLabSidebar({
@@ -19,6 +23,8 @@ export function VisualLabSidebar({
   onSelect,
   onSelectQuiz,
   completedIds,
+  onClose,
+  className,
 }: Props) {
   const [filterQuery, setFilterQuery] = useState('');
 
@@ -30,7 +36,36 @@ export function VisualLabSidebar({
   );
 
   return (
-    <aside className="flex h-[calc(100vh-3.5rem)] w-72 shrink-0 flex-col border-r border-[var(--osa-border)]/80 bg-[#070b14] select-none">
+    <aside
+      className={cn(
+        'flex h-full w-72 sm:w-80 lg:w-72 shrink-0 flex-col border-r border-[var(--osa-border)]/80 bg-[#070b14] select-none',
+        className,
+      )}
+    >
+      {/* Header with Title and Close Button */}
+      <div className="flex items-center justify-between border-b border-[var(--osa-border)]/50 px-3 py-2.5">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-slate-300">
+            Course Modules
+          </span>
+          <span className="rounded-full bg-purple-950/80 px-2 py-0.5 text-[10px] font-mono text-purple-300 border border-purple-800/40">
+            {vulnerabilities.length + 2}
+          </span>
+        </div>
+
+        {onClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex size-7 items-center justify-center rounded-lg border border-slate-800 bg-[#0c1222] text-slate-400 hover:border-slate-700 hover:bg-slate-800 hover:text-white transition-colors"
+            aria-label="Close modules sidebar"
+            title="Close sidebar"
+          >
+            <X className="size-3.5" />
+          </button>
+        )}
+      </div>
+
       {/* Quick search input */}
       <div className="border-b border-[var(--osa-border)]/50 p-2.5">
         <div className="relative flex items-center">

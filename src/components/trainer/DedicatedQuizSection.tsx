@@ -296,8 +296,10 @@ export function DedicatedQuizSection() {
               onClick={() => setSelectedQuizId(nextQuiz.id)}
               className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-cyan-500 px-4 py-2 text-xs font-bold text-slate-950 shadow-md shadow-purple-500/20 transition-all hover:opacity-95"
             >
-              <span>Next Quiz: {nextQuiz.code} ({nextQuiz.title})</span>
-              <ChevronRight className="size-4" />
+              <span className="truncate max-w-[200px] sm:max-w-none">
+                Next: {nextQuiz.code} <span className="hidden sm:inline">({nextQuiz.title})</span>
+              </span>
+              <ChevronRight className="size-4 shrink-0" />
             </button>
           )}
         </div>

@@ -28,6 +28,7 @@ export function VisualLabDiagram({
   speed,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const scrollWrapperRef = useRef<HTMLDivElement>(null);
 
   // Box positions stored in percentage (0-100) for fully responsive layout
   const [positions, setPositions] =
@@ -37,16 +38,36 @@ export function VisualLabDiagram({
   // Continuous automated active step (0 to 4 corresponding to actor, entry, failure, impact, defense)
   const [activeStep, setActiveStep] = useState(0);
 
+  const scrollToNode = (key: NodeKey) => {
+    if (!scrollWrapperRef.current || !containerRef.current) return;
+    const scrollEl = scrollWrapperRef.current;
+    const containerEl = containerRef.current;
+    const currentPos = positions[key];
+    const cardW = 256;
+    const targetX =
+      (currentPos.x / 100) * containerEl.scrollWidth -
+      scrollEl.clientWidth / 2 +
+      cardW / 2;
+    scrollEl.scrollTo({ left: Math.max(0, targetX), behavior: 'smooth' });
+  };
+
   // Auto-advance step when playing
   useEffect(() => {
     if (!isPlaying) return;
     const baseInterval = 2800 / speed;
     const timer = setInterval(() => {
-      setActiveStep((prev) => (prev >= 4 ? 0 : prev + 1));
+      setActiveStep((prev) => {
+        const nextStep = prev >= 4 ? 0 : prev + 1;
+        const keys: NodeKey[] = ['actor', 'entry', 'failure', 'impact', 'defense'];
+        if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+          scrollToNode(keys[nextStep]);
+        }
+        return nextStep;
+      });
     }, baseInterval);
 
     return () => clearInterval(timer);
-  }, [isPlaying, speed]);
+  }, [isPlaying, speed, positions]);
 
   // Reset positions when vulnerability changes
   useEffect(() => {
@@ -71,7 +92,9 @@ export function VisualLabDiagram({
   ) => {
     // Only accept left mouse button or touch
     if (e.button !== 0 && e.pointerType === 'mouse') return;
-    e.preventDefault();
+    if (e.pointerType === 'mouse') {
+      e.preventDefault();
+    }
 
     onSelectNode(node);
     setActiveStep(stepIndex);
@@ -270,13 +293,65 @@ export function VisualLabDiagram({
   const conn3 = computeConnection('failure', 'impact');
   const conn4 = computeConnection('impact', 'defense');
 
+  const nodeSteps: { key: NodeKey; stepIndex: number; label: string; number: number }[] = [
+    { key: 'actor', stepIndex: 0, label: 'Threat Actor', number: 1 },
+    { key: 'entry', stepIndex: 1, label: 'Entry Point', number: 2 },
+    { key: 'failure', stepIndex: 2, label: 'Failure', number: 3 },
+    { key: 'impact', stepIndex: 3, label: 'Impact', number: 4 },
+    { key: 'defense', stepIndex: 4, label: 'Defense', number: 5 },
+  ];
+
   return (
-    <div
-      ref={containerRef}
-      className="relative h-[550px] w-full select-none overflow-hidden rounded-2xl border border-[var(--osa-border)]/70 bg-[#090d16] shadow-2xl"
-    >
-      {/* Background Cyber Grid */}
-      <div className="absolute inset-0 grid-mesh opacity-70 pointer-events-none" />
+    <div className="w-full overflow-hidden rounded-2xl border border-[var(--osa-border)]/70 bg-[#090d16] shadow-2xl">
+      {/* Mobile Attack Flow Sequence Pills Bar */}
+      <div className="flex flex-col border-b border-[var(--osa-border)]/50 bg-[#080d19] px-3 py-2 lg:hidden">
+        <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1.5">
+          <span className="flex items-center gap-1.5 font-semibold text-slate-300">
+            <span className="size-2 rounded-full bg-cyan-400 animate-pulse" />
+            Attack Flow Sequence
+          </span>
+          <span className="text-[10px] font-mono text-slate-500">
+            ← Swipe circuit →
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+          {nodeSteps.map((s) => {
+            const isCurrent = activeStep === s.stepIndex;
+            return (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => {
+                  onSelectNode(nodes[s.key]);
+                  setActiveStep(s.stepIndex);
+                  scrollToNode(s.key);
+                }}
+                className={`shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                  isCurrent
+                    ? 'bg-purple-900/60 text-white border border-purple-500/60 shadow-xs ring-1 ring-purple-500/30'
+                    : 'bg-[#0c1220] text-slate-400 hover:text-white border border-slate-800'
+                }`}
+              >
+                <span className="font-mono text-[10px] text-slate-400">{s.number}.</span>
+                <span>{s.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Horizontal Touch-Scrollable Circuit Viewport */}
+      <div
+        ref={scrollWrapperRef}
+        className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
+        <div
+          ref={containerRef}
+          className="relative h-[530px] sm:h-[550px] min-w-[880px] lg:min-w-full select-none overflow-hidden"
+        >
+          {/* Background Cyber Grid */}
+          <div className="absolute inset-0 grid-mesh opacity-70 pointer-events-none" />
 
 
       {/* SVG Connecting Paths & Animated Packets */}
@@ -685,6 +760,8 @@ export function VisualLabDiagram({
           <span className="text-[10px] font-mono text-slate-500">
             Node 5 • Defense
           </span>
+        </div>
+      </div>
         </div>
       </div>
     </div>
