@@ -3,7 +3,6 @@ import { VISUAL_VULNERABILITIES } from '@/data/visualLabData';
 import { VisualLabTopNav } from './VisualLabTopNav';
 import { VisualLabSidebar } from './VisualLabSidebar';
 import { VisualLabDiagram } from './VisualLabDiagram';
-import { VisualLabControls } from './VisualLabControls';
 import { VisualLabRightPane } from './VisualLabRightPane';
 import { DedicatedQuizSection } from './DedicatedQuizSection';
 import { AboutOwaspView } from './AboutOwaspView';
@@ -17,12 +16,12 @@ export function VisualLabApp() {
   const [difficulty, setDifficulty] = useState<'Beginner' | 'Advanced'>('Beginner');
 
   // Animation controls
-  const [isPlaying, setIsPlaying] = useState<boolean>(true);
-  const [speed, setSpeed] = useState<number>(0.5); // Default 0.5x matching screenshot
+  const [isPlaying] = useState<boolean>(true);
+  const [speed] = useState<number>(0.5); // Default 0.5x matching screenshot
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
   // Completed items list
-  const [completedIds, setCompletedIds] = useState<string[]>([]);
+  const [completedIds] = useState<string[]>([]);
 
   // Navigation tab
   const [currentTab, setCurrentTab] = useState<string>('top-10');
@@ -126,30 +125,6 @@ export function VisualLabApp() {
                 onSelectNode={setSelectedNode}
                 isPlaying={isPlaying}
                 speed={speed}
-              />
-
-              {/* Bottom Playback & Speed Controls */}
-              <VisualLabControls
-                vulnerability={currentVuln}
-                isPlaying={isPlaying}
-                onTogglePlay={() => setIsPlaying((p) => !p)}
-                speed={speed}
-                onSelectSpeed={setSpeed}
-                isCompleted={completedIds.includes(currentVuln.id)}
-                onToggleComplete={() =>
-                  setCompletedIds((prev) =>
-                    prev.includes(currentVuln.id)
-                      ? prev.filter((id) => id !== currentVuln.id)
-                      : [...prev, currentVuln.id],
-                  )
-                }
-                onNext={() => {
-                  const idx = VISUAL_VULNERABILITIES.findIndex((v) => v.id === currentVuln.id);
-                  if (idx >= 0 && idx < VISUAL_VULNERABILITIES.length - 1) {
-                    handleSelectVulnerability(VISUAL_VULNERABILITIES[idx + 1].id);
-                  }
-                }}
-                onPresent={() => setIsFullscreen((f) => !f)}
               />
             </div>
           )}
