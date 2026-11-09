@@ -7,7 +7,7 @@ import {
   RotateCcw,
   Award,
   ChevronRight,
-  Check,
+  ChevronLeft,
 } from 'lucide-react';
 import { DEDICATED_QUIZZES } from '@/data/dedicatedQuizzes';
 
@@ -75,6 +75,7 @@ export function DedicatedQuizSection() {
   });
 
   const currentIndex = DEDICATED_QUIZZES.findIndex((quiz) => quiz.id === selectedQuizId);
+  const prevQuiz = currentIndex > 0 ? DEDICATED_QUIZZES[currentIndex - 1] : null;
   const nextQuiz =
     currentIndex < DEDICATED_QUIZZES.length - 1
       ? DEDICATED_QUIZZES[currentIndex + 1]
@@ -119,59 +120,6 @@ export function DedicatedQuizSection() {
               {totalScore} / {totalAnswered} Correct ({totalAnswered}/{totalQuestions} attempted)
             </span>
           </div>
-        </div>
-      </div>
-
-      {/* Quiz Category Selector Pills */}
-      <div>
-        <div className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-          Select a Category Quiz:
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-          {DEDICATED_QUIZZES.map((quiz) => {
-            const isSelected = quiz.id === selectedQuizId;
-            const answers = allAnswers[quiz.id] || {};
-            const questions = quiz.questions;
-            const isComplete = questions.every((q) => answers[q.id] !== undefined);
-            let score = 0;
-            questions.forEach((q) => {
-              if (answers[q.id] === q.correctAnswer) score++;
-            });
-
-            return (
-              <button
-                key={quiz.id}
-                type="button"
-                onClick={() => setSelectedQuizId(quiz.id)}
-                className={`flex flex-col items-start rounded-xl border p-2.5 text-left transition-all ${
-                  isSelected
-                    ? 'border-purple-500/70 bg-purple-950/40 text-purple-200 shadow-md shadow-purple-950/50'
-                    : 'border-[var(--osa-border)] bg-[#0a101d] text-slate-300 hover:border-slate-600 hover:bg-[#0e172a]'
-                }`}
-              >
-                <div className="flex w-full items-center justify-between">
-                  <span className="font-mono text-xs font-bold text-cyan-400">
-                    {quiz.code}
-                  </span>
-                  {isComplete && (
-                    <span
-                      className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.2 text-[10px] font-bold ${
-                        score === questions.length
-                          ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                          : 'bg-amber-950 text-amber-400 border border-amber-800'
-                      }`}
-                    >
-                      <Check className="size-3" />
-                      {score}/{questions.length}
-                    </span>
-                  )}
-                </div>
-                <span className="mt-1 text-xs font-semibold text-slate-200 truncate w-full">
-                  {quiz.title}
-                </span>
-              </button>
-            );
-          })}
         </div>
       </div>
 
@@ -329,9 +277,20 @@ export function DedicatedQuizSection() {
           })}
         </div>
 
-        {/* Next Category Shortcut */}
-        {nextQuiz && (
-          <div className="mt-6 flex justify-end">
+        {/* Quiz Navigation Shortcuts */}
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+          {prevQuiz ? (
+            <button
+              type="button"
+              onClick={() => setSelectedQuizId(prevQuiz.id)}
+              className="flex items-center gap-2 rounded-xl border border-slate-700 bg-[#0d1527] px-4 py-2 text-xs font-bold text-slate-200 shadow-md transition-all hover:border-slate-500 hover:bg-[#131f38]"
+            >
+              <ChevronLeft className="size-4" />
+              <span>Previous: {prevQuiz.code}</span>
+            </button>
+          ) : <div />}
+
+          {nextQuiz && (
             <button
               type="button"
               onClick={() => setSelectedQuizId(nextQuiz.id)}
@@ -340,8 +299,8 @@ export function DedicatedQuizSection() {
               <span>Next Quiz: {nextQuiz.code} ({nextQuiz.title})</span>
               <ChevronRight className="size-4" />
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </motion.div>
   );
